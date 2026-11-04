@@ -1,0 +1,15 @@
+name: Sblocca Pages
+on:
+  push:
+    paths:
+      - .github/workflows/sblocca-pages.yml
+permissions:
+  pages: write
+jobs:
+  sblocca:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Annulla la vecchia pubblicazione
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/deployments/fdcf146aec523c4464c28e1a52acb192d2773017/cancel"
+        env:
+          GH_TOKEN: ${{ github.token }}
