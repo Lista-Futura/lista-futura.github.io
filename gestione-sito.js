@@ -1,0 +1,8 @@
+const BASE='https://pkkhpqdnotaczlgqqvhc.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBra2hwcWRub3RhY3psZ3FxdmhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MTE0NzcsImV4cCI6MjEwOTM4NzQ3N30.me538xOp2JmNWcDD2Ykc6FvmpHYq_gmhZDxyGbmPWv8';
+const $=s=>document.querySelector(s);
+async function verify(token){const f=new FormData();f.append('action','verifica');const r=await fetch(BASE+'/functions/v1/gestione-contenuti',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+token},body:f});if(!r.ok)throw Error('Questo account non è autorizzato o la sessione è scaduta.')}
+async function show(){const token=await ModeratoreAuth.getToken();if(!token)return;await verify(token);$('#loginPanel').classList.add('hidden');$('#dashboard').classList.remove('hidden')}
+$('#loginForm').onsubmit=async e=>{e.preventDefault();const btn=e.target.querySelector('button');btn.disabled=true;$('#loginError').textContent='';try{const r=await fetch(BASE+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:$('#email').value.trim(),password:$('#password').value})});const data=await r.json();if(!r.ok||!data.access_token)throw Error('Accesso non riuscito. Controlla email e password.');await verify(data.access_token);ModeratoreAuth.save(data);$('#password').value='';await show()}catch(err){ModeratoreAuth.clear();$('#loginError').textContent=err.message||'Accesso non riuscito.'}finally{btn.disabled=false}};
+$('#logout').onclick=()=>{ModeratoreAuth.clear();$('#dashboard').classList.add('hidden');$('#loginPanel').classList.remove('hidden')};
+show().catch(e=>{$('#loginError').textContent=e.message;ModeratoreAuth.clear()});

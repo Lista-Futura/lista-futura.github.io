@@ -5,6 +5,7 @@ const authHeaders=token=>({apikey:FUTURA_PUBLIC_KEY,Authorization:'Bearer '+toke
 async function showInbox(){
  const token=await FuturaAuth.getToken();
  if(!token){currentUser=null;currentProfile=null;$('#authArea').classList.remove('hidden');$('#mailArea').classList.add('hidden');return}
+ window.FuturaContenuti?.refreshConventions();
  $('#authArea').classList.add('hidden');$('#mailArea').classList.remove('hidden');$('#welcome').textContent='CIAO, '+FuturaAuth.read().username.toUpperCase();$('#mailList').innerHTML='<div class="empty">Caricamento messaggi...</div>';$('#mailError').textContent='';$('#profileMissing').classList.add('hidden');$('#schoolCard').classList.add('hidden');
  try{
   const [u,p,m]=await Promise.all([fetch(FUTURA_BASE+'/auth/v1/user',{headers:authHeaders(token)}),fetch(FUTURA_BASE+'/rest/v1/futura_profili?select=id,nome,cognome,classe',{headers:authHeaders(token)}),fetch(FUTURA_BASE+'/rest/v1/futura_messaggi?select=id,evento,testo,creato_il&order=creato_il.desc',{headers:authHeaders(token)})]);

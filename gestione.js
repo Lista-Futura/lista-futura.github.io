@@ -4,6 +4,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let token = '';
 async function action(payload){
+ const refreshed=await ModeratoreAuth.getToken();if(refreshed)token=refreshed;
  const res=await fetch(BASE+'/functions/v1/gestione-appunti',{method:'POST',headers:{'Content-Type':'application/json',apikey:PUBLIC_KEY,Authorization:'Bearer '+token},body:JSON.stringify(payload)});
  let data;try{data=await res.json()}catch{throw new Error('Risposta non disponibile. Riprova.')};
  if(!res.ok)throw new Error(data.error||'Operazione non riuscita');return data;
