@@ -1,5 +1,3 @@
-// Il numero di contatto resta facoltativo. Usare un numero pubblico con prefisso, ad esempio +39.
-const NUMERO_CONTATTO = '';
 // Chiave anonima pubblica: l'accesso è limitato dalle regole sul database e sui file.
 const SUPABASE_URL = 'https://pkkhpqdnotaczlgqqvhc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBra2hwcWRub3RhY3psZ3FxdmhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MTE0NzcsImV4cCI6MjEwOTM4NzQ3N30.me538xOp2JmNWcDD2Ykc6FvmpHYq_gmhZDxyGbmPWv8';
@@ -48,7 +46,6 @@ function closeModal(){$('#overlay').classList.remove('visible');$('#noteModal').
 $('#addNote').onclick=async()=>{const token=await FuturaAuth.getToken();if(!token){window.location.href='account.html?next=appunti';return}openModal()};$('#closeModal').onclick=closeModal;$('#overlay').onclick=closeModal;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#noteModal').classList.contains('open'))closeModal()});
 $('#noteForm').onsubmit=async e=>{e.preventDefault();if(!noteFiles.length){toast('Scegli almeno una foto');$('#noteFile').focus();return}const userToken=await FuturaAuth.getToken();if(!userToken){toast('Accedi per inviare gli appunti.');window.location.href='account.html?next=appunti';return}const form=new FormData();noteFiles.forEach(file=>form.append('foto',file));form.append('materia',$('#noteSubject').value);form.append('anno',$('#noteYear').value);form.append('descrizione',$('#noteTitle').value.trim());const button=$('#submitNote');button.disabled=true;button.textContent='INVIO IN CORSO...';try{const res=await fetch(`${SUPABASE_URL}/functions/v1/invia-appunto-account`,{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+userToken},body:form});const data=await res.json();if(!res.ok)throw new Error(data.error||'Invio non riuscito');e.target.reset();noteFiles=[];showFiles();closeModal();toast('Foto inviate: saranno pubblicate dopo il controllo.');}catch(error){toast(error.message||'Invio non riuscito. Riprova.')}finally{button.disabled=false;button.innerHTML='INVIA PER IL CONTROLLO <span>↗</span>'}};
 let timer;function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(timer);timer=setTimeout(()=>$('#toast').classList.remove('show'),5000)}
-if(NUMERO_CONTATTO.trim()){const phone=$('#phoneContact');phone.href='tel:'+NUMERO_CONTATTO.replace(/[^+0-9]/g,'');phone.innerHTML='CONTATTACI AL '+escapeHTML(NUMERO_CONTATTO)+' <span>↗</span>';phone.removeAttribute('aria-disabled');phone.classList.remove('unavailable')}
 loadNotes();
 // Barra fissa su telefono: sezione corrente e navigazione rapida.
 const sectionSelect=document.querySelector('#sectionSelect');
