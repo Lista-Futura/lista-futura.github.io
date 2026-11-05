@@ -40,7 +40,7 @@ $('#noteFile').addEventListener('change',e=>{
  e.target.value='';showFiles();if(ignored)toast('Massimo 5 foto JPG, PNG o WebP, 3 MB ciascuna e 12 MB in totale.');
 });
 $$('.filter').forEach(b=>b.onclick=()=>{$$('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;renderNotes()});
-$$('.product').forEach(product=>product.querySelectorAll('[data-side]').forEach(btn=>btn.onclick=()=>{product.querySelectorAll('[data-side]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const img=product.querySelector('img');img.src=`assets/maglia-${product.dataset.product}-${btn.dataset.side}.jpg`;img.alt=`Maglia Lista Futura modello ${product.dataset.product}, ${btn.dataset.side==='fronte'?'prima':'seconda'} vista`}));
+$$('.product').forEach(product=>product.querySelectorAll('[data-side]').forEach(btn=>btn.onclick=()=>{product.querySelectorAll('[data-side]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const img=product.querySelector('img');img.src=`assets/maglia-${product.dataset.product}-${btn.dataset.side}.jpg?v=20261105b`;img.alt=`Maglia Lista Futura modello ${product.dataset.product}, ${btn.dataset.side==='fronte'?'prima':'seconda'} vista`}));
 $('#menuButton').onclick=()=>{const nav=$('#mobileNav');nav.classList.toggle('open');$('#menuButton').setAttribute('aria-expanded',nav.classList.contains('open'))};
 $$('#mobileNav a').forEach(a=>a.onclick=()=>{$('#mobileNav').classList.remove('open');$('#menuButton').setAttribute('aria-expanded','false')});
 function openModal(){$('#overlay').classList.add('visible');$('#noteModal').classList.add('open');$('#noteModal').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';$('#noteSubject').focus()}
@@ -50,3 +50,13 @@ $('#noteForm').onsubmit=async e=>{e.preventDefault();if(!noteFiles.length){toast
 let timer;function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(timer);timer=setTimeout(()=>$('#toast').classList.remove('show'),5000)}
 if(NUMERO_CONTATTO.trim()){const phone=$('#phoneContact');phone.href='tel:'+NUMERO_CONTATTO.replace(/[^+0-9]/g,'');phone.innerHTML='CONTATTACI AL '+escapeHTML(NUMERO_CONTATTO)+' <span>↗</span>';phone.removeAttribute('aria-disabled');phone.classList.remove('unavailable')}
 loadNotes();
+// Barra fissa su telefono: sezione corrente e navigazione rapida.
+const sectionSelect=document.querySelector('#sectionSelect');
+if(sectionSelect){
+ document.body.classList.add('has-section-bar');
+ const sections=Array.from(sectionSelect.options).map(o=>document.getElementById(o.value)).filter(Boolean);
+ let scheduled=false;
+ function currentSection(){let current='inizio';for(const section of sections){if(section.getBoundingClientRect().top<=90)current=section.id}sectionSelect.value=current;scheduled=false}
+ window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(currentSection)}},{passive:true});
+ sectionSelect.addEventListener('change',()=>document.getElementById(sectionSelect.value)?.scrollIntoView({behavior:'smooth',block:'start'}));currentSection();
+}

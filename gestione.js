@@ -10,7 +10,7 @@ async function action(payload){
 }
 $('#loginForm').onsubmit=async e=>{
  e.preventDefault();const btn=e.target.querySelector('button');btn.disabled=true;$('#loginError').textContent='';
- try{const res=await fetch(BASE+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json',apikey:PUBLIC_KEY},body:JSON.stringify({email:$('#email').value.trim(),password:$('#password').value})});const data=await res.json();if(!res.ok||!data.access_token)throw new Error('Accesso non riuscito. Verifica email e password dell’area appunti.');token=data.access_token;$('#password').value='';await load();$('#loginPanel').classList.add('hidden');$('#adminPanel').classList.remove('hidden')}
+ try{const res=await fetch(BASE+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json',apikey:PUBLIC_KEY},body:JSON.stringify({email:$('#email').value.trim(),password:$('#password').value})});const data=await res.json();if(!res.ok||!data.access_token)throw new Error('Accesso non riuscito. Verifica email e password dell’area appunti.');token=data.access_token;ModeratoreAuth.save(data);$('#password').value='';await load();$('#loginPanel').classList.add('hidden');$('#adminPanel').classList.remove('hidden')}
  catch(err){token='';$('#loginError').textContent=err.message||'Accesso non riuscito.'}finally{btn.disabled=false}
 };
 async function load(){
@@ -21,4 +21,6 @@ async function load(){
  document.querySelectorAll('.reject').forEach(btn=>btn.onclick=async()=>{const motivo=btn.closest('.pending-card').querySelector('.rejection-reason').value;if(!motivo){$('#adminMessage').textContent='Scegli una motivazione prima di disapprovare.';return}if(!confirm('Disapprovare questo invio? Le foto non saranno pubblicate.'))return;btn.disabled=true;try{await action({action:'rifiuta',id:btn.dataset.id,motivo});await load();$('#adminMessage').textContent='Appunto disapprovato. Motivo: '+motivo+'.'}catch(err){$('#adminMessage').textContent=err.message;btn.disabled=false}});
 }
 $('#reload').onclick=()=>load().catch(e=>$('#adminMessage').textContent=e.message);
-$('#logout').onclick=()=>{token='';$('#pendingList').innerHTML='';$('#adminPanel').classList.add('hidden');$('#loginPanel').classList.remove('hidden')};
+$('#logout').onclick=()=>{token='';ModeratoreAuth.clear();$('#pendingList').innerHTML='';$('#adminPanel').classList.add('hidden');$('#loginPanel').classList.remove('hidden')};
+
+(async()=>{const saved=await ModeratoreAuth.getToken();if(!saved)return;token=saved;try{await load();$('#loginPanel').classList.add('hidden');$('#adminPanel').classList.remove('hidden')}catch{token='';ModeratoreAuth.clear()}})();
